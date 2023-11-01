@@ -378,9 +378,19 @@ def saving_contacts(contacts):
 
 
 def upload_transformed_data(api_key, contacts):
+    """
+      Upload transformed contacts to HubSpot.
+
+      Parameters:
+      - api_key: HubSpot API key
+      - contacts: List of dictionaries with contact data
+
+      Returns: None
+      """
     # Define the base URL for the HubSpot API
     base_url = "https://api.hubapi.com/crm/v3/objects/contacts"
 
+    # Authentication Headers
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
@@ -392,56 +402,65 @@ def upload_transformed_data(api_key, contacts):
     start_time = time.time()
 
     for contact in contacts:
+        try:
+            # Define the data to update
+            data = {
+                "properties": [
+                    {
+                        "property": "email",
+                        "value": contact["properties"]["Email"]
+                    },
+                    {
+                        "property": "phone",
+                        "value": contact["properties"]["Phone Number"]
+                    },
+                    {
+                        "property": "country",
+                        "value": contact["properties"]["Country"]
+                    },
+                    {
+                        "property": "city",
+                        "value": contact["properties"]["City"]
+                    },
+                    {
+                        "property": "original createdate",
+                        "value": contact["properties"]["technical_test___create_date"]
+                    },
+                    {
+                        "property": "original industry",
+                        "value": contact["properties"]["Industry"]
+                    },
+                    {
+                        "property": "temporary id",
+                        "value": contact["hs_object_id"]
+                    }
+                ]
+            }
 
-        # Define the data to update
-        data = {
-            "properties": [
-                {
-                    "property": "email",
-                    "value": contact["properties"]["Email"]
-                },
-                {
-                    "property": "phone",
-                    "value": contact["properties"]["Phone Number"]
-                },
-                {
-                    "property": "country",
-                    "value": contact["properties"]["Country"]
-                },
-                {
-                    "property": "city",
-                    "value": contact["properties"]["City"]
-                },
-                {
-                    "property": "original createdate",
-                    "value": contact["properties"]["technical_test___create_date"]
-                },
-                {
-                    "property": "original industry",
-                    "value": contact["properties"]["Industry"]
-                },
-                {
-                    "property": "temporary id",
-                    "value": contact["hs_object_id"]
-                }
-            ]
-        }
+            # Make the request
+            response = requests.post(base_url, headers=headers, json=data)
 
-        # Hacer request
-        response = requests.post(base_url, headers=headers, json=data)
+            # Check that the request was successful
+            response.raise_for_status()
 
-        if response.ok:
-            print(f"Contact {contact['id']} created successfully")
+            print(f"Contact {contact['id']} uploaded")
 
-        else:
-            print(f"Error creating contact {contact['id']}: {response.text}")
+            # Management of exceptions
+        except KeyError as e:
+            print(f"Error getting property for {contact['id']}: {e}")
 
-    # Calculate end time
-    end_time = time.time()
+        except requests.exceptions.HTTPError as e:
+            print(f"HTTP Error {response.status_code} for {contact['id']}: {response.text}")
 
-    # Calculate total time
-    total_time = end_time - start_time
+        except Exception as e:
+            print(f"Error uploading {contact['id']}: {e}")
 
-    print(f"Total execution time: {total_time} seconds")
+        # Calculate end time
+        end_time = time.time()
+
+        # Calculate total time
+        total_time = end_time - start_time
+
+        print(f"Total execution time: {total_time} seconds")
 
     print("Migration process completed!")

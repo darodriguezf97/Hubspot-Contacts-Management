@@ -402,39 +402,20 @@ def upload_transformed_data(api_key, contacts):
     start_time = time.time()
 
     for contact in contacts:
+
         try:
             # Define the data to update
             data = {
-                "properties": [
+                "properties":
                     {
-                        "property": "email",
-                        "value": contact["properties"]["Email"]
-                    },
-                    {
-                        "property": "phone",
-                        "value": contact["properties"]["Phone Number"]
-                    },
-                    {
-                        "property": "country",
-                        "value": contact["properties"]["Country"]
-                    },
-                    {
-                        "property": "city",
-                        "value": contact["properties"]["City"]
-                    },
-                    {
-                        "property": "original createdate",
-                        "value": contact["properties"]["technical_test___create_date"]
-                    },
-                    {
-                        "property": "original industry",
-                        "value": contact["properties"]["Industry"]
-                    },
-                    {
-                        "property": "temporary id",
-                        "value": contact["hs_object_id"]
+                        "email": contact["properties"]["Email"],
+                        "phone": contact["properties"]["Phone Number"],
+                        "country": contact["properties"]["Country"],
+                        "city": contact["properties"]["City"],
+                        "original_create_date": contact["properties"]["technical_test___create_date"],
+                        "original_industry": contact["properties"]["industry"],
+                        "temporary_id": contact["properties"]["hs_object_id"]
                     }
-                ]
             }
 
             # Make the request
@@ -455,12 +436,12 @@ def upload_transformed_data(api_key, contacts):
         except Exception as e:
             print(f"Error uploading {contact['id']}: {e}")
 
-        # Calculate end time
-        end_time = time.time()
+    # Calculate end time
+    end_time = time.time()
 
-        # Calculate total time
-        total_time = end_time - start_time
+    # Calculate total time
+    total_time = end_time - start_time
 
-        print(f"Total execution time: {total_time} seconds")
+    print(f"Total execution time: {total_time} seconds")
 
     print("Migration process completed!")
